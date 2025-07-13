@@ -9,13 +9,38 @@
 <body>
     <div id="container">
         <div id="loading">Loading magical gift box<span class="loading-dots"></span></div>
-        <div id="instructions">✨ Click anywhere to open the magical gift box! ✨</div>
+        <div id="instructions">
+            <div class="click-instruction">
+                <span class="click-text">👆 Click Me! 👆</span>
+                <div class="click-arrow">↓</div>
+                <div class="pulse-ring"></div>
+            </div>
+        </div>
         <div class="sparkle-overlay"></div>
         <div class="vietnamese-text" id="vietnameseText">Chị Hai Cho Em Tiền</div>
+        
+        <!-- Speech control button (hidden initially) -->
+        <div id="speechControl" class="speech-control">
+            <button id="speakButton" onclick="repeatSpeech()">🔊 Nghe lại</button>
+        </div>
+        
+        <!-- Audio elements -->
+        <audio id="backgroundMusic" loop>
+            <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTyO2+ysUhQKUKjv1XMYBS5+zPC/bR0HMn/L7sNWGgs8k9v5kykHKn/R8rp7LQc7kdXvkiYH" type="audio/wav">
+        </audio>
+        <audio id="clickSound">
+            <source src="data:audio/wav;base64,UklGRpQEAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YXAEAACCIlSjIEqjjKhSgz6fUoM+n1KDPp9Sgz6fUoM+n1KDPp9Sgz6fUoM+n1KDPp9Sgz6fUoM+n1KDPp9Sgz6fUoM+n1KDPp9Sgz6fUoM+n1KDPp9Sgz6fUoM+n1KDPp9Sgz6fUoM+n1KDPp9Sgz6fUoM+n1KDPp9Sgz6fUoM+n1KDPp8=" type="audio/wav">
+        </audio>
+        <audio id="openSound">
+            <source src="data:audio/wav;base64,UklGRpQEAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YXAEAADsUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDTUKDT" type="audio/wav">
+        </audio>
+        <audio id="magicSound">
+            <source src="data:audio/wav;base64,UklGRpQEAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YXAEAACVhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBziR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTyO2+ysUhQKUKjv1XMYBS5+zPC/bR0HMn/L7sNWGgs8k9v5kykHKn/R8rp7LQc7kdXvkiYH" type="audio/wav">
+        </audio>
     </div>
     
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="enhanced-script.js"></script>
+    <script src="ultra-enhanced-script.js"></script>
 </body>
 </html>

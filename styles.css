@@ -25,16 +25,19 @@ body {
 
 #instructions {
     position: absolute;
-    top: 30px;
-    left: 30px;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
     color: #fff;
     font-size: 20px;
     font-weight: 300;
     z-index: 100;
     text-shadow: 2px 2px 8px rgba(0,0,0,0.7);
-    opacity: 0.9;
-    transition: opacity 1s ease;
+    opacity: 0;
+    transition: all 1s ease;
     letter-spacing: 1px;
+    margin-top: 150px;
+    display: none;
 }
 
 #loading {
@@ -81,12 +84,26 @@ body {
 
 .sparkle {
     position: absolute;
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     background: radial-gradient(circle, #ffd700 0%, #ffed4e 50%, transparent 100%);
     border-radius: 50%;
     pointer-events: none;
-    box-shadow: 0 0 10px #ffd700;
+    box-shadow: 
+        0 0 10px #ffd700,
+        0 0 20px #ffd700;
+    animation: twinkle 2s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+    0%, 100% {
+        opacity: 0.3;
+        transform: scale(0.8);
+    }
+    50% {
+        opacity: 1;
+        transform: scale(1.2);
+    }
 }
 
 @keyframes sparkleFloat {
@@ -102,12 +119,8 @@ body {
     }
     100% {
         opacity: 0;
-        transform: translateY(-120px) scale(1.5) rotate(180deg);
+        transform: translateY(-150px) scale(2) rotate(360deg);
     }
-}
-
-.sparkle.animate {
-    animation: sparkleFloat 3s ease-out forwards;
 }
 
 /* Magic glow effect */
@@ -137,27 +150,44 @@ body {
         0 0 10px #ffd700,
         0 0 20px #ffd700,
         0 0 30px #ffd700,
+        0 0 40px #ffd700,
         2px 2px 4px rgba(0,0,0,0.5);
     opacity: 0;
     z-index: 50;
     font-family: 'Arial', sans-serif;
-    letter-spacing: 2px;
+    letter-spacing: 3px;
     white-space: nowrap;
-    transition: all 2s ease;
+    transition: all 3s ease;
+    filter: drop-shadow(0 0 20px #ffd700);
 }
 
 .vietnamese-text.show {
     opacity: 1;
     transform: translate(-50%, -50%) scale(1.1);
-    animation: textFloat 4s ease-in-out infinite;
+    animation: textFloat 4s ease-in-out infinite, textShine 3s ease-in-out infinite;
 }
 
 @keyframes textFloat {
     0%, 100% {
         transform: translate(-50%, -50%) scale(1.1) rotateY(0deg);
     }
+    25% {
+        transform: translate(-50%, -50%) scale(1.15) rotateY(2deg);
+    }
     50% {
-        transform: translate(-50%, -50%) scale(1.15) rotateY(5deg);
+        transform: translate(-50%, -50%) scale(1.1) rotateY(0deg);
+    }
+    75% {
+        transform: translate(-50%, -50%) scale(1.15) rotateY(-2deg);
+    }
+}
+
+@keyframes textShine {
+    0%, 100% {
+        filter: drop-shadow(0 0 20px #ffd700) brightness(1);
+    }
+    50% {
+        filter: drop-shadow(0 0 30px #ffd700) brightness(1.2);
     }
 }
 
@@ -190,6 +220,151 @@ body {
     animation: particleRise 3s ease-out forwards;
 }
 
+/* Enhanced Click Instruction with Animation */
+.click-instruction {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    animation: floatUpDown 2s ease-in-out infinite;
+}
+
+.click-text {
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 
+        0 0 10px #ffd700,
+        0 0 20px #ffd700,
+        0 0 30px #ffd700;
+    animation: textGlow 2s ease-in-out infinite alternate;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.click-text:hover {
+    transform: scale(1.1);
+    color: #ffed4e;
+}
+
+.click-arrow {
+    font-size: 30px;
+    color: #ffd700;
+    animation: bounceArrow 1s ease-in-out infinite;
+    margin-top: 5px;
+}
+
+.pulse-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 60px;
+    height: 60px;
+    border: 3px solid #ffd700;
+    border-radius: 50%;
+    animation: pulseRing 2s ease-out infinite;
+    opacity: 0;
+}
+
+/* Floating animation for click instruction */
+@keyframes floatUpDown {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(-10px);
+    }
+}
+
+/* Text glow animation */
+@keyframes textGlow {
+    0% {
+        text-shadow: 
+            0 0 10px #ffd700,
+            0 0 20px #ffd700,
+            0 0 30px #ffd700;
+    }
+    100% {
+        text-shadow: 
+            0 0 15px #ffd700,
+            0 0 25px #ffd700,
+            0 0 35px #ffd700,
+            0 0 45px #ffd700;
+    }
+}
+
+/* Bouncing arrow animation */
+@keyframes bounceArrow {
+    0%, 100% {
+        transform: translateY(0px);
+    }
+    50% {
+        transform: translateY(10px);
+    }
+}
+
+/* Pulse ring animation */
+@keyframes pulseRing {
+    0% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(0.1);
+    }
+    50% {
+        opacity: 0.7;
+    }
+    100% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(1.5);
+    }
+}
+
+/* Speech control button */
+.speech-control {
+    position: absolute;
+    bottom: 30px;
+    right: 30px;
+    z-index: 100;
+    opacity: 0;
+    transition: all 1s ease;
+}
+
+.speech-control.show {
+    opacity: 1;
+}
+
+#speakButton {
+    background: linear-gradient(45deg, #ffd700, #ffed4e);
+    border: none;
+    border-radius: 25px;
+    padding: 12px 20px;
+    color: #333;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 
+        0 4px 15px rgba(255, 215, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    transition: all 0.3s ease;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+#speakButton:hover {
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 
+        0 6px 20px rgba(255, 215, 0, 0.6),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    background: linear-gradient(45deg, #ffed4e, #ffd700);
+}
+
+#speakButton:active {
+    transform: translateY(0px) scale(0.98);
+    box-shadow: 
+        0 2px 10px rgba(255, 215, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     #instructions {
@@ -211,4 +386,9 @@ body {
     .vietnamese-text {
         font-size: 24px;
     }
+}
+
+/* Audio controls (hidden but functional) */
+audio {
+    display: none;
 }
