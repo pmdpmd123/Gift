@@ -365,26 +365,99 @@ body {
         inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
-/* Responsive design */
-@media (max-width: 768px) {
-    #instructions {
-        font-size: 16px;
-        top: 20px;
-        left: 20px;
+/* Speech fallback popup for mobile */
+.speech-fallback {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border-radius: 15px;
+    padding: 20px;
+    z-index: 1000;
+    max-width: 90%;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    animation: popupAppear 0.5s ease-out;
+}
+
+.fallback-content {
+    text-align: center;
+    color: white;
+}
+
+.fallback-content h3 {
+    margin: 0 0 10px 0;
+    font-size: 20px;
+}
+
+.fallback-content p {
+    margin: 10px 0;
+    font-size: 24px;
+    font-weight: bold;
+    color: #ffd700;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.fallback-content small {
+    opacity: 0.8;
+    font-size: 12px;
+}
+
+@keyframes popupAppear {
+    0% {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.5);
     }
-    
-    .vietnamese-text {
-        font-size: 32px;
+    100% {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
     }
 }
 
-@media (max-width: 480px) {
-    #instructions {
+/* Mobile optimizations */
+@media (max-width: 768px) {
+    .speech-control {
+        bottom: 20px;
+        right: 20px;
+    }
+    
+    #speakButton {
+        padding: 10px 16px;
         font-size: 14px;
     }
     
     .vietnamese-text {
+        font-size: 32px;
+        letter-spacing: 2px;
+    }
+    
+    .click-instruction {
+        transform: scale(0.8);
+    }
+    
+    .fallback-content p {
+        font-size: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .vietnamese-text {
         font-size: 24px;
+        letter-spacing: 1px;
+    }
+    
+    #speakButton {
+        padding: 8px 12px;
+        font-size: 12px;
+    }
+    
+    .speech-control {
+        bottom: 15px;
+        right: 15px;
+    }
+    
+    .fallback-content p {
+        font-size: 18px;
     }
 }
 

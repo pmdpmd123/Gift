@@ -55,11 +55,34 @@ function initTextToSpeech() {
         speechSupported = true;
         console.log("🗣️ Text-to-Speech supported!");
         
-        // Wait for voices to load
-        if (speechSynthesis.getVoices().length === 0) {
-            speechSynthesis.addEventListener('voiceschanged', () => {
-                console.log("🗣️ Voices loaded!");
-            });
+        // Check if mobile device
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile) {
+            console.log("📱 Mobile device detected, using mobile-optimized speech");
+        }
+        
+        // Wait for voices to load and force load on mobile
+        const loadVoices = () => {
+            const voices = speechSynthesis.getVoices();
+            console.log("🗣️ Available voices:", voices.length);
+            if (voices.length > 0) {
+                console.log("✅ Voices loaded successfully!");
+                // Test voice on mobile to ensure it works
+                if (isMobile) {
+                    testMobileSpeech();
+                }
+            }
+        };
+        
+        // Load voices immediately if available
+        loadVoices();
+        
+        // Also listen for voices changed event
+        speechSynthesis.addEventListener('voiceschanged', loadVoices);
+        
+        // Force voice loading on mobile
+        if (isMobile) {
+            setTimeout(loadVoices, 1000);
         }
     } else {
         console.log("❌ Text-to-Speech not supported in this browser");
@@ -67,66 +90,148 @@ function initTextToSpeech() {
     }
 }
 
+// Test speech on mobile devices
+function testMobileSpeech() {
+    try {
+        const testUtterance = new SpeechSynthesisUtterance("");
+        testUtterance.volume = 0; // Silent test
+        speechSynthesis.speak(testUtterance);
+        console.log("📱 Mobile speech test completed");
+    } catch (e) {
+        console.log("📱 Mobile speech test failed:", e);
+    }
+}
+
 // Function to speak Vietnamese text
 function speakVietnameseText(text) {
     if (!speechSupported || !speechSynthesis) {
         console.log("Text-to-Speech not available");
+        showTextFallback(text);
         return;
     }
     
     // Cancel any ongoing speech
     speechSynthesis.cancel();
     
-    // Create speech utterance
-    const utterance = new SpeechSynthesisUtterance(text);
-    
-    // Configure voice settings
-    utterance.rate = 0.8; // Slower rate for clarity
-    utterance.pitch = 1.1; // Slightly higher pitch
-    utterance.volume = 0.8; // Good volume level
-    
-    // Try to find Vietnamese voice
-    const voices = speechSynthesis.getVoices();
-    const vietnameseVoice = voices.find(voice => 
-        voice.lang.includes('vi') || 
-        voice.lang.includes('VN') ||
-        voice.name.toLowerCase().includes('vietnam')
-    );
-    
-    if (vietnameseVoice) {
-        utterance.voice = vietnameseVoice;
-        console.log("🇻🇳 Using Vietnamese voice:", vietnameseVoice.name);
-    } else {
-        // Fallback to female voice if available
-        const femaleVoice = voices.find(voice => 
-            voice.name.toLowerCase().includes('female') ||
-            voice.name.toLowerCase().includes('woman') ||
-            voice.name.toLowerCase().includes('girl')
+    // Small delay to ensure cancel is processed
+    setTimeout(() => {
+        // Create speech utterance
+        const utterance = new SpeechSynthesisUtterance(text);
+        
+        // Configure voice settings for mobile compatibility
+        utterance.rate = 0.7; // Slower rate for mobile
+        utterance.pitch = 1.0; // Normal pitch for mobile
+        utterance.volume = 1.0; // Full volume
+        utterance.lang = 'vi-VN'; // Set Vietnamese language explicitly
+        
+        // Get voices and find the best one
+        const voices = speechSynthesis.getVoices();
+        console.log("🗣️ Looking through", voices.length, "voices");
+        
+        // Try to find Vietnamese voice first
+        let selectedVoice = voices.find(voice => 
+            voice.lang.includes('vi') || 
+            voice.lang.includes('VN') ||
+            voice.name.toLowerCase().includes('vietnam') ||
+            voice.name.toLowerCase().includes('vietnamese')
         );
         
-        if (femaleVoice) {
-            utterance.voice = femaleVoice;
-            console.log("👩 Using female voice:", femaleVoice.name);
+        // Fallback to female voice if no Vietnamese
+        if (!selectedVoice) {
+            selectedVoice = voices.find(voice => 
+                voice.name.toLowerCase().includes('female') ||
+                voice.name.toLowerCase().includes('woman') ||
+                voice.name.toLowerCase().includes('girl') ||
+                voice.name.toLowerCase().includes('samantha') ||
+                voice.name.toLowerCase().includes('karen') ||
+                voice.name.toLowerCase().includes('amelie')
+            );
+        }
+        
+        // Final fallback to any available voice
+        if (!selectedVoice && voices.length > 0) {
+            selectedVoice = voices[0];
+        }
+        
+        if (selectedVoice) {
+            utterance.voice = selectedVoice;
+            console.log("�️ Selected voice:", selectedVoice.name, selectedVoice.lang);
         } else {
-            console.log("🗣️ Using default voice");
+            console.log("🗣️ Using default system voice");
+        }
+        
+        // Add event listeners with mobile-specific handling
+        utterance.onstart = () => {
+            console.log("🗣️ Started speaking:", text);
+            highlightSpeechButton(true);
+        };
+        
+        utterance.onend = () => {
+            console.log("✅ Finished speaking");
+            highlightSpeechButton(false);
+        };
+        
+        utterance.onerror = (event) => {
+            console.log("❌ Speech error:", event.error);
+            showTextFallback(text);
+            highlightSpeechButton(false);
+        };
+        
+        // Speak with mobile-specific retry logic
+        try {
+            speechSynthesis.speak(utterance);
+            
+            // Mobile fallback: if speech doesn't start in 2 seconds, retry
+            setTimeout(() => {
+                if (speechSynthesis.speaking === false && speechSynthesis.pending === false) {
+                    console.log("📱 Speech didn't start, retrying...");
+                    speechSynthesis.speak(utterance);
+                }
+            }, 2000);
+            
+        } catch (e) {
+            console.log("❌ Speech failed:", e);
+            showTextFallback(text);
+        }
+        
+    }, 100);
+}
+
+// Fallback function to show text visually when speech fails
+function showTextFallback(text) {
+    console.log("📝 Using visual fallback for:", text);
+    
+    // Create a visual popup with the text
+    const popup = document.createElement('div');
+    popup.className = 'speech-fallback';
+    popup.innerHTML = `
+        <div class="fallback-content">
+            <h3>🗣️ Đọc to:</h3>
+            <p>"${text}"</p>
+            <small>Trình duyệt không hỗ trợ đọc text</small>
+        </div>
+    `;
+    
+    document.body.appendChild(popup);
+    
+    // Remove popup after 3 seconds
+    setTimeout(() => {
+        popup.remove();
+    }, 3000);
+}
+
+// Function to highlight speech button when speaking
+function highlightSpeechButton(isActive) {
+    const button = document.getElementById('speakButton');
+    if (button) {
+        if (isActive) {
+            button.style.background = 'linear-gradient(45deg, #ff6b6b, #ffd700)';
+            button.textContent = '🔊 Đang đọc...';
+        } else {
+            button.style.background = 'linear-gradient(45deg, #ffd700, #ffed4e)';
+            button.textContent = '🔊 Nghe lại';
         }
     }
-    
-    // Add event listeners
-    utterance.onstart = () => {
-        console.log("🗣️ Started speaking:", text);
-    };
-    
-    utterance.onend = () => {
-        console.log("✅ Finished speaking");
-    };
-    
-    utterance.onerror = (event) => {
-        console.log("❌ Speech error:", event.error);
-    };
-    
-    // Speak the text
-    speechSynthesis.speak(utterance);
 }
 
 function createAudioTones() {
@@ -707,11 +812,27 @@ function onEnhancedMouseMove(event) {
 
 function handleEnhancedClick(event) {
     if (!isOpened) {
-        // Initialize audio context on first user interaction
+        // Initialize audio context on first user interaction (required for mobile)
         if (!audioInitialized && audioContext && audioContext.state === 'suspended') {
             audioContext.resume();
-            audioInitialized = true;
         }
+        
+        // Initialize speech synthesis on first user interaction (required for mobile)
+        if (!speechSupported && 'speechSynthesis' in window) {
+            initTextToSpeech();
+        }
+        
+        // Test speech synthesis on mobile on first click
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+        if (isMobile && speechSynthesis) {
+            // Prime the speech synthesis for mobile
+            const testUtterance = new SpeechSynthesisUtterance("");
+            testUtterance.volume = 0;
+            speechSynthesis.speak(testUtterance);
+            speechSynthesis.cancel();
+        }
+        
+        audioInitialized = true;
         
         playSound('click');
         openUltraMagicalGiftBox();
@@ -900,15 +1021,23 @@ function showEnhancedVietnameseText() {
     // Play magic sound
     playSound('magic');
     
-    // Speak the Vietnamese text
+    // Check mobile and speech support
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    console.log("📱 Is mobile:", isMobile);
+    console.log("🗣️ Speech supported:", speechSupported);
+    console.log("🗣️ speechSynthesis available:", !!window.speechSynthesis);
+    
+    // Speak the Vietnamese text with longer delay for mobile
+    const speechDelay = isMobile ? 2000 : 1000;
     setTimeout(() => {
+        console.log("🗣️ Attempting to speak text...");
         speakVietnameseText("Chị Hai Cho Em Tiền");
-    }, 1000); // Delay 1 second after text appears
+    }, speechDelay);
     
     // Show speech control button after text is shown
     setTimeout(() => {
         showSpeechControl();
-    }, 2000);
+    }, speechDelay + 1000);
     
     // Animate 3D text mesh with premium effects
     if (textMesh) {
